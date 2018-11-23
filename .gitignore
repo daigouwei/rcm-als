@@ -1,3 +1,11 @@
+# Myself
+.idea
+*.iml
+target
+output
+log*txt
+*.txt
+
 # Compiled class file
 *.class
 
