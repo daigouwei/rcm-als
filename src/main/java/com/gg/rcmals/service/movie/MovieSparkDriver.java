@@ -4,6 +4,7 @@ import com.gg.rcmals.domain.MovieRating;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.ml.recommendation.ALSModel;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +45,18 @@ public class MovieSparkDriver implements SmartLifecycle, Serializable {
         SparkSession sparkSession = SparkSession.builder().appName("RECOMMEND ALS").master("local[*]").getOrCreate();
         LOG.info("Movie parser...");
         Dataset<String> movieDataset =
-                movieParser.readBehaviorFile(sparkSession, new ClassPathResource("/data/movie.txt").getPath());
+                movieParser.readBehaviorFile(sparkSession, new ClassPathResource("/data/movie").getPath());
         JavaRDD<MovieRating> movieRatingRDD = movieDataset.javaRDD().map(line -> movieParser.parseBehaviorLog(line));
+        LOG.info("Movie recommend::split data...");
+        Dataset<Row>[] movieRatingRowArr = movieRecommend.splitData(sparkSession, movieRatingRDD);
         LOG.info("Movie recommend::generate ALS model...");
-        ALSModel alsModel = movieRecommend.generateModel(sparkSession, movieRatingRDD);
+        ALSModel model = movieRecommend.generateModel(movieRatingRowArr[0]);
         LOG.info("Movie recommend::test ALS model...");
-
+        Double rmse = movieRecommend.testModelByRmse(model, movieRatingRowArr[1]);
+        LOG.info("rmse score==========={}", rmse);
+        LOG.info("Movie recommend::recommend result...");
+        movieRecommend.showRcmResults(model);
+        LOG.info("recommend over!!!");
     }
 
     @Override
