@@ -26,19 +26,19 @@ public class SpringContainerHolder implements ApplicationContextAware {
     /**
      * 从静态变量ApplicationContext中取得Bean, 自动转型为所赋值对象的类型.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     public static <T> T getBean(String name) {
         checkApplicationContext();
-        return (T) applicationContext.getBean(name);
+        return (T)applicationContext.getBean(name);
     }
 
     /**
      * 从静态变量ApplicationContext中取得Bean, 自动转型为所赋值对象的类型.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     public static <T> T getBean(Class<T> clazz) {
         checkApplicationContext();
-        return (T) applicationContext.getBeansOfType(clazz);
+        return (T)applicationContext.getBeansOfType(clazz);
     }
 
     /**
@@ -51,7 +51,7 @@ public class SpringContainerHolder implements ApplicationContextAware {
     private static void checkApplicationContext() {
         if (applicationContext == null) {
             throw new IllegalStateException(
-                    "application Context not wired,please define SpringContextHolder in applicationContext.xml");
+                "application Context not wired,please define SpringContextHolder in applicationContext.xml");
         }
     }
 }

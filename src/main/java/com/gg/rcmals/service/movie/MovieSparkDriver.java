@@ -44,8 +44,8 @@ public class MovieSparkDriver implements SmartLifecycle, Serializable {
         LOG.info("SparkRcmDriver start...");
         SparkSession sparkSession = SparkSession.builder().appName("RECOMMEND ALS").master("local[*]").getOrCreate();
         LOG.info("Movie parser...");
-        Dataset<String> movieDataset =
-                movieParser.readBehaviorFile(sparkSession, new ClassPathResource("/data/movie").getPath());
+        Dataset<String> movieDataset = movieParser
+            .readBehaviorFile(sparkSession, new ClassPathResource("src/main/resources/data/movie").getPath());
         JavaRDD<MovieRating> movieRatingRDD = movieDataset.javaRDD().map(line -> movieParser.parseBehaviorLog(line));
         LOG.info("Movie recommend::split data...");
         Dataset<Row>[] movieRatingRowArr = movieRecommend.splitData(sparkSession, movieRatingRDD);
@@ -57,6 +57,7 @@ public class MovieSparkDriver implements SmartLifecycle, Serializable {
         LOG.info("Movie recommend::recommend result...");
         movieRecommend.showRcmResults(model);
         LOG.info("recommend over!!!");
+        sparkSession.close();
     }
 
     @Override

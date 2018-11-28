@@ -22,13 +22,14 @@ public class MovieRecommend implements Serializable {
     public Dataset<Row>[] splitData(SparkSession sparkSession, JavaRDD<MovieRating> movieRatingRDD) {
         //生成训练数据和测试数据, [0]为训练数据，[1]为测试数据
         Dataset<Row> movieRatingRow = sparkSession.createDataFrame(movieRatingRDD, MovieRating.class);
-        Dataset<Row>[] movieRatingRowArr = movieRatingRow.randomSplit(new double[]{0.8, 0.2});
+        Dataset<Row>[] movieRatingRowArr = movieRatingRow.randomSplit(new double[] {0.8, 0.2});
         return movieRatingRowArr;
     }
 
     public ALSModel generateModel(Dataset<Row> movieTrain) {
         //生成model
-        ALS als = new ALS().setMaxIter(5).setRegParam(0.01).setUserCol("userId").setItemCol("movieId").setRatingCol("rating");
+        ALS als =
+            new ALS().setMaxIter(5).setRegParam(0.01).setUserCol("userId").setItemCol("movieId").setRatingCol("rating");
         ALSModel model = als.fit(movieTrain);
         return model;
     }
@@ -38,7 +39,7 @@ public class MovieRecommend implements Serializable {
         model.setColdStartStrategy("drop");
         Dataset<Row> predictions = model.transform(movieTest);
         RegressionEvaluator evaluator =
-                new RegressionEvaluator().setMetricName("rmse").setLabelCol("rating").setPredictionCol("prediction");
+            new RegressionEvaluator().setMetricName("rmse").setLabelCol("rating").setPredictionCol("prediction");
         Double rmse = evaluator.evaluate(predictions);
         return rmse;
     }
@@ -46,10 +47,10 @@ public class MovieRecommend implements Serializable {
     public void showRcmResults(ALSModel model) {
         //为用户推荐10个电影
         Dataset<Row> userRcms = model.recommendForAllUsers(10);
-        userRcms.show();
+        userRcms.show(false);
         //为电影推荐10个用户
         Dataset<Row> movieRcms = model.recommendForAllItems(10);
-        movieRcms.show();
+        movieRcms.show(false);
     }
 
 }
